@@ -1,29 +1,29 @@
-import { useState, useCallback } from 'react'
+import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 
 const HEARTS = ['💖', '💗', '💓', '💞', '💕', '❤️', '🩷', '💘']
 
-function randomPos() {
-  return {
-    x: Math.floor(Math.random() * (window.innerWidth - 120)),
-    y: Math.floor(Math.random() * (window.innerHeight - 80)),
-  }
-}
+const NO_LABELS = [
+  'No 🙅', 'Are you sure?', 'Really??', 'Think again…', 'Pleeeease?',
+  'Last chance!', 'You monster 😭', 'Fine… 💔',
+]
 
 export default function ProfilePage() {
   const { name, interest } = useParams()
   const decodedName = decodeURIComponent(name ?? '')
   const decodedInterest = decodeURIComponent(interest ?? '')
 
-  const [yesScale, setYesScale] = useState(1)
-  const [noPos, setNoPos] = useState(null)
+  const [noCount, setNoCount] = useState(0)
   const [accepted, setAccepted] = useState(false)
   const [hearts, setHearts] = useState([])
 
-  const dodgeNo = useCallback(() => {
-    setNoPos(randomPos())
-    setYesScale(s => Math.min(s + 0.25, 3))
-  }, [])
+  const yesScale = 1 + noCount * 0.3
+  const noScale = Math.max(1 - noCount * 0.15, 0.3)
+  const noLabel = NO_LABELS[Math.min(noCount, NO_LABELS.length - 1)]
+
+  function handleNo() {
+    setNoCount(n => n + 1)
+  }
 
   function handleYes() {
     setAccepted(true)
@@ -137,47 +137,44 @@ export default function ProfilePage() {
             Will you be my Valentine? 🫶
           </h1>
 
-          <div className="mt-8 flex items-center justify-center gap-4">
+          <div className="mt-8 flex items-center justify-center gap-6">
             <button
               onClick={handleYes}
-              className="rounded-2xl bg-gradient-to-r from-pink-500 to-rose-500 px-6 py-3 font-bold text-white shadow-lg shadow-pink-600/30 transition-all hover:shadow-pink-600/50 hover:brightness-110"
+              className="rounded-2xl bg-gradient-to-r from-pink-500 to-rose-500 font-bold text-white shadow-lg shadow-pink-600/30 hover:brightness-110 whitespace-nowrap"
               style={{
                 transform: `scale(${yesScale})`,
                 transition: 'transform 0.3s cubic-bezier(0.34,1.56,0.64,1)',
-                fontSize: `${Math.min(1 + (yesScale - 1) * 0.4, 1.5)}rem`,
+                padding: '0.75rem 1.5rem',
+                transformOrigin: 'center',
               }}
             >
               Yes! 💗
             </button>
 
             <button
-              onMouseEnter={dodgeNo}
-              onTouchStart={dodgeNo}
-              onClick={dodgeNo}
-              className="rounded-2xl border border-rose-700/50 bg-white/5 px-6 py-3 text-sm font-semibold text-rose-300 backdrop-blur-md transition-colors hover:bg-white/10"
-              style={
-                noPos
-                  ? {
-                      position: 'fixed',
-                      left: noPos.x,
-                      top: noPos.y,
-                      transition: 'left 0.18s ease-out, top 0.18s ease-out',
-                      zIndex: 50,
-                    }
-                  : {}
-              }
+              onClick={handleNo}
+              className="rounded-2xl border border-rose-700/50 bg-white/5 font-semibold text-rose-300 backdrop-blur-md transition-colors hover:bg-white/10 whitespace-nowrap"
+              style={{
+                transform: `scale(${noScale})`,
+                transition: 'transform 0.3s cubic-bezier(0.34,1.56,0.64,1)',
+                padding: '0.75rem 1.5rem',
+                transformOrigin: 'center',
+                opacity: noScale <= 0.3 ? 0.3 : 1,
+              }}
             >
-              No 🙅
+              {noLabel}
             </button>
           </div>
 
-          {yesScale > 1 && (
-            <p className="mt-5 text-rose-300/50 text-xs animate-pulse">
-              {yesScale >= 3
+          {noCount > 0 && (
+            <p className="mt-6 text-rose-300/50 text-xs animate-pulse">
+              {noCount >= 7
+                ? 'ok fine 💔 (jk say yes!!)'
+                : noCount >= 5
                 ? 'Just say YES already!! 😭'
-                : yesScale >= 2
-                ? "The no button keeps running away… hint hint 👀"
-                : "Trying to click no? It won't let you 😏"}
+                : noCount >= 3
+                ? 'The yes button keeps growing… hint hint 👀'
+                : "Are you sure about that? 👀"}
             </p>
           )}
         </div>
