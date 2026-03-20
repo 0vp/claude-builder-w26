@@ -37,7 +37,7 @@ export default function Dashboard() {
             Loverboy <span className="text-pink-400">AI</span>
           </h1>
           <p className="mt-2 text-rose-300/80 text-sm tracking-widest uppercase font-medium">
-            Find your perfect match vibe
+            Send ur perfect valentines card
           </p>
         </div>
 
