@@ -1,5 +1,7 @@
 const BASE_URL = 'https://app.backboard.io/api'
 const ASSISTANT_NAME = 'WW Personalized Page Generator'
+const MODEL_PROVIDER = 'anthropic'
+const MODEL_NAME = 'claude-haiku-4-5-20251001'
 const SYSTEM_PROMPT = `You generate polished, personalized single-file web pages.
 
 Return only valid HTML for a complete document.
@@ -73,6 +75,8 @@ async function generatePage({ apiKey, name, interests }) {
 
   const formData = new FormData()
   formData.set('content', buildPrompt({ name, interests }))
+  formData.set('llm_provider', MODEL_PROVIDER)
+  formData.set('model_name', MODEL_NAME)
   formData.set('stream', 'false')
   formData.set('memory', 'off')
   formData.set('send_to_llm', 'true')
